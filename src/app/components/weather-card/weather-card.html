@@ -1,0 +1,145 @@
+<div class="weather-card" [ngClass]="getWeatherBackgroundClass()" *ngIf="weatherData">
+  <div class="card-header">
+    <div class="location-info">
+      <h2 class="location-name">{{ weatherData.location.name }}</h2>
+      <p class="location-details">
+        {{ weatherData.location.region }}{{ weatherData.location.region && weatherData.location.country ? ', ' : '' }}{{ weatherData.location.country }}
+      </p>
+      <p class="current-time">{{ currentTime }}</p>
+    </div>
+    
+    <div class="temperature-toggle">
+      <button 
+        class="toggle-btn"
+        (click)="toggleTemperatureUnit()"
+        [class.active]="temperatureUnit === 'celsius'"
+      >
+        °C
+      </button>
+      <button 
+        class="toggle-btn"
+        (click)="toggleTemperatureUnit()"
+        [class.active]="temperatureUnit === 'fahrenheit'"
+      >
+        °F
+      </button>
+    </div>
+  </div>
+
+  <div class="weather-main">
+    <div class="temperature-section">
+      <div class="current-temp">
+        <span class="temp-value">{{ getTemperature() }}</span>
+        <span class="temp-unit">{{ getTemperatureUnit() }}</span>
+      </div>
+      <p class="feels-like">Feels like {{ getFeelsLike() }}{{ getTemperatureUnit() }}</p>
+    </div>
+    
+    <div class="weather-condition">
+      <img 
+        [src]="getWeatherIconUrl(weatherData.current.condition.icon)" 
+        [alt]="weatherData.current.condition.text"
+        class="weather-icon"
+      />
+      <p class="condition-text">{{ weatherData.current.condition.text }}</p>
+      <!-- Temporary debug info - remove this after fixing -->
+      <p style="font-size: 10px; color: #999; margin-top: 4px;">
+        Debug: {{ weatherData.current.condition.icon }} → {{ getWeatherIconUrl(weatherData.current.condition.icon) }}
+      </p>
+    </div>
+  </div>
+
+  <div class="weather-details" [class.expanded]="showDetails">
+    <div class="details-grid">
+      <div class="detail-item">
+        <div class="detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Humidity</span>
+          <span class="detail-value">{{ weatherData.current.humidity }}%</span>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Wind</span>
+          <span class="detail-value">{{ getWindSpeed() }} {{ getWindUnit() }} {{ weatherData.current.wind_dir }}</span>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Pressure</span>
+          <span class="detail-value">{{ getPressure() }} {{ getPressureUnit() }}</span>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">UV Index</span>
+          <span class="detail-value">{{ weatherData.current.uv }}</span>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <div class="detail-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Visibility</span>
+          <span class="detail-value">{{ getVisibility() }} {{ getVisibilityUnit() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button 
+    class="expand-button"
+    (click)="toggleShowDetails()"
+    [class.expanded]="showDetails"
+  >
+    <span>{{ showDetails ? 'Show Less' : 'Show More' }}</span>
+    <svg 
+      width="16" 
+      height="16" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      [class.rotated]="showDetails"
+    >
+      <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+</div>
+
+<div class="weather-card-placeholder" *ngIf="!weatherData">
+  <div class="placeholder-content">
+    <div class="placeholder-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="currentColor"/>
+      </svg>
+    </div>
+    <h3>Search for a location to see weather</h3>
+    <p>Enter a city, country, or location above to get started</p>
+  </div>
+</div>
